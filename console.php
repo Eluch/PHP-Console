@@ -34,6 +34,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
 	<script>
+		var refreshInterval = null;
 		$(document).ready(function(){
 			$('#reset').click(function(){ $('#input').val(''); });
 			$('#send').click(function(){
@@ -62,6 +63,18 @@
 			$('.changeFontSize').click(function() {
 				$('.codeblock').css('font-size', (+$('.codeblock').css('font-size').replace('px', '')) + ($(this).attr('data-inc') === "1" ? 2 : -2) + "px");
 			});
+			$('#refresh').click(function () {
+				var refresh = $(this).prop('checked');
+				if ($('#refreshInterval').val() < 1) $('#refreshInterval').val(1);
+				if (refresh) {
+					refreshInterval = setInterval(function() { $('#send').click(); }, +$('#refreshInterval').val() * 1000);
+				} else {
+					clearInterval(refreshInterval); refreshInterval = null;
+				}
+			});
+			$('#refreshInterval').change(function() {
+				if ($('#refresh').prop('checked')) $('#refresh').click();
+			});
 		});
 	</script>
 	<style>
@@ -80,6 +93,9 @@
 			min-height: 250px;
 			overflow: auto;
 		}
+		#refreshInterval {
+			width: 30px;
+		}
 		.codeblock {
 			background: #000;
 			color: #0f0;
@@ -92,6 +108,14 @@
 		}
 		.changeFontSizeBtn { float: right; }
 		.clear { clear: both; }
+		.separator {
+			display: inline-block;
+			width: 3px;
+			height: 20px;
+			background: #0f0;
+			vertical-align: middle;
+			margin: 0 3px;
+		}
 	</style>
 
 </head>
@@ -100,7 +124,13 @@
 	<div>
 		<button id="reset">Clear input</button>
 		<button id="send">Send (Shift-Enter)</button>
+		<div class="separator"></div>
 		<input type="checkbox" id="stderr" name="stderr" checked><label for="stderr">Display stderr</label>
+
+		<div class="separator"></div>
+		<input type="checkbox" id="refresh" name="refresh"><label for="refresh">Re-run commands in every </label>
+		<input type="number" id="refreshInterval" name="refreshInterval" value="3" min="1"><label for="refresh"> seconds</label>
+
 		<button class="changeFontSizeBtn" data-inc="1"><span class="fontChangerSymbol">+</span> font size</button>
 		<button class="changeFontSizeBtn" data-inc="0"><span class="fontChangerSymbol">-</span> font size</button>
 		<div class="clear"></div>
