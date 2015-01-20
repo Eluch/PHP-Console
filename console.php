@@ -3,9 +3,13 @@
 	@set_time_limit(0);
 	@ini_set('max_execution_time', 0);
 	if (!(isset($_GET['key']) && $_GET['key'] === MAGIC_CONSOLE_KEY)) die('no! no-no noo!');
-	if (isset($_POST['input'])) {
-		if (strpos($_POST['input'], '2>&1') == FALSE) $_POST['input'] .= ' 2>&1';
-		$a = shell_exec($_POST['input']);
+	if (isset($_POST['input'], $_POST['stderr'])) {
+		$a = '';
+		$cmds = explode("\n", $_POST['input']);
+		foreach($cmds as $cmd) {
+			if ($_POST['stderr'] && strpos($cmd, '2>&1') == FALSE) $cmd .= ' 2>&1';
+			$a .= shell_exec($cmd);
+		}
 		$a = str_replace("\n", "<br>\n", $a);
 		echo $a;
 		exit;
@@ -34,10 +38,14 @@
 			$('#reset').click(function(){ $('#input').val(''); });
 			$('#send').click(function(){
 				$('#input, #send').prop('disabled', true);
-				var input = $('#input').val();
+				var input = $('#input').val(),
+					stderr = $('#stderr').prop('checked')?1:0;
 				$.ajax({
 					type: 'post',
-					data: {input: input},
+					data: {
+						input: input,
+						stderr: stderr
+					},
 					success: function(res) {
 						$('#answer').html(res);
 						$('#input, #send').prop('disabled', false);
@@ -59,6 +67,7 @@
 	<style>
 		body { background: #000; }
 		button { margin: 3px; }
+		label { color: #fff; }
 		#input {
 			width: 100%;
 			height: 250px;
@@ -91,6 +100,7 @@
 	<div>
 		<button id="reset">Clear input</button>
 		<button id="send">Send (Shift-Enter)</button>
+		<input type="checkbox" id="stderr" name="stderr" checked><label for="stderr">Display stderr</label>
 		<button class="changeFontSizeBtn" data-inc="1"><span class="fontChangerSymbol">+</span> font size</button>
 		<button class="changeFontSizeBtn" data-inc="0"><span class="fontChangerSymbol">-</span> font size</button>
 		<div class="clear"></div>
