@@ -37,8 +37,10 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
 	<script>
+		var version = /*ver*/1/*sion*/;
 		var refreshInterval = null;
 		$(document).ready(function(){
+			$('#cVer').html('Version: 1.' + version);
 			$('#reset').click(function(){ $('#input').val(''); });
 			$('#send').click(function(){
 				$('#input, #send').prop('disabled', true);
@@ -78,6 +80,15 @@
 			$('#refreshInterval').change(function() {
 				if ($('#refresh').prop('checked')) $('#refresh').click();
 			});
+			$('#destroyBtn').click(function() {
+				if(confirm("Are you sure that you want to destroy this console?\n(Delete permanently)\n\nThis feature only works on linux\n(with proper permissions)")) {
+					$.ajax({
+						type: 'post',
+						data: { input: 'rm console.php', stderr: 0 },
+						success: function() { alert("The console doesn't exists anymore!"); location.reload(); }
+					});
+				}
+			});
 		});
 	</script>
 	<style>
@@ -99,6 +110,11 @@
 		#refreshInterval {
 			width: 30px;
 		}
+		.menuHeader {
+			margin-top: 5px;
+			margin-bottom: 10px;
+			color: #fff;
+		}
 		.codeblock {
 			background: #000;
 			color: #0f0;
@@ -119,10 +135,19 @@
 			vertical-align: middle;
 			margin: 0 3px;
 		}
+		.menuBtn:hover {
+			cursor: pointer;
+			color: #aaa;
+		}
 	</style>
 
 </head>
 <body>
+	<div class="menuHeader">
+		<span class="menuBtn" id="destroyBtn">[Self Destroy]</span>
+		<div style="float: right;" id="cVer"></div>
+		<div class="clear"></div>
+	</div>
     <textarea id="input" class="codeblock" placeholder="&gt; Enter the console commands here"></textarea>
 	<div>
 		<button id="reset">Clear input</button>
