@@ -4,13 +4,15 @@
 	@ini_set('max_execution_time', 0);
 	if (!(isset($_GET['key']) && $_GET['key'] === MAGIC_CONSOLE_KEY)) die('no! no-no noo!');
 	if (isset($_POST['input'], $_POST['stderr'])) {
-		$a = '';
 		$cmds = explode("\n", $_POST['input']);
+		$runnable = array();
 		foreach($cmds as $cmd) {
 			if ($_POST['stderr'] && strpos($cmd, '2>&1') == FALSE) $cmd .= ' 2>&1';
-			exec($cmd, $ou);
-			$a .= implode("\n", $ou);
+			$runnable[] = $cmd;
 		}
+		$runnable = implode('; ', $runnable);
+		exec($runnable, $a);
+		$a = implode("\n", $a);
 		$a = str_replace("\n", "<br>\n", htmlentities($a));
 		echo $a;
 		exit;
@@ -61,7 +63,7 @@
 					$('#send').click();
 				}
 			});
-			$('.changeFontSize').click(function() {
+			$('.changeFontSizeBtn').click(function() {
 				$('.codeblock').css('font-size', (+$('.codeblock').css('font-size').replace('px', '')) + ($(this).attr('data-inc') === "1" ? 2 : -2) + "px");
 			});
 			$('#refresh').click(function () {
