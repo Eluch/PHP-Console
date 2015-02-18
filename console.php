@@ -16,6 +16,16 @@
 		$a = str_replace("\n", "<br>\n", htmlentities($a));
 		echo $a;
 		exit;
+	} else if (isset($_POST['update'])) {
+		if ($_POST['update'] == 0) {
+			exec('wget -qO- https://raw.githubusercontent.com/Eluch/PHP-Console/master/console.php', $a);
+			$a = implode("\n", $a);
+			preg_match('/\/\*ver\*\/(\d+)\/\*sion\*\//', $a, $a);
+			echo $a[1];
+		} else if ($_POST['update'] == 1) {
+			exec('wget -qO- https://raw.githubusercontent.com/Eluch/PHP-Console/master/console.php > .' . $_SERVER['PHP_SELF']);
+		}
+		exit;
 	}
 ?>
 
@@ -37,7 +47,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
 	<script>
-		var version = /*ver*/1/*sion*/;
+		var version = /*ver*/2/*sion*/;
 		var refreshInterval = null;
 		$(document).ready(function(){
 			$('#cVer').html('Version: 1.' + version);
@@ -89,6 +99,20 @@
 					});
 				}
 			});
+			$.ajax({
+				type: 'post',
+				data: { update: 0 },
+				success: function(r) { if(r>version) $('#updateBtn').show(); }
+			});
+			$('#updateBtn').click(function() {
+				$('input, button').prop('disabled', true);
+				$('#input, #answer').html('UPDATE IN PROGRESS! PLEASE WAIT!');
+				$.ajax({
+					type: 'post',
+					data: { update: 1 },
+					success: function() { location.reload(); }
+				});
+			});
 		});
 	</script>
 	<style>
@@ -139,12 +163,14 @@
 			cursor: pointer;
 			color: #aaa;
 		}
+		#updateBtn { color: #ff0; } #updateBtn:hover { color: #aa0; }
 	</style>
 
 </head>
 <body>
 	<div class="menuHeader">
 		<span class="menuBtn" id="destroyBtn">[Self Destroy]</span>
+		<span class="menuBtn" id="updateBtn" style="display: none;">[Update Console]</span>
 		<div style="float: right;" id="cVer"></div>
 		<div class="clear"></div>
 	</div>
